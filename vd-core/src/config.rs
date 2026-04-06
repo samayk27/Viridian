@@ -1,4 +1,3 @@
-#[allow(unused)]
 use dirs;
 use serde::Deserialize;
 use toml;

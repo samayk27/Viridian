@@ -1,0 +1,48 @@
+[workspace]
+members = [
+    "vd-cli",
+    "vd-llm",
+    "vd-core",
+    "vd-tools",
+    "vd-memory",
+    "vd-mcp",
+]
+resolver = "2"
+
+[workspace.package]
+version      = "0.1.0"
+edition      = "2021"
+license      = "MIT"
+
+[workspace.dependencies]
+tokio        = { version = "1",    features = ["full"] }
+tokio-stream = "0.1"
+reqwest      = { version = "0.12", features = ["json", "stream"] }
+serde        = { version = "1",    features = ["derive"] }
+serde_json   = "1"
+toml         = "0.8"
+anyhow       = "1"
+thiserror    = "2"
+async-trait  = "0.1"
+
+clap         = { version = "4",    features = ["derive"] }
+rustyline    = "14"
+colored      = "2"
+indicatif    = "0.17"
+rusqlite     = { version = "0.32", features = ["bundled"] }
+diffy        = "0.4"
+ignore       = "0.4"
+dirs         = "5"
+tracing             = "0.1"
+tracing-subscriber  = { version = "0.3", features = ["env-filter"] }
+
+vd-llm   = { path = "vd-llm" }
+vd-core  = { path = "vd-core" }
+vd-tools = { path = "vd-tools" }
+vd-memory = { path = "vd-memory" }
+vd-mcp   = { path = "vd-mcp" }
+
+[profile.release]
+opt-level = 3
+lto       = "thin"
+strip     = true

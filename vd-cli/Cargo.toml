@@ -1,0 +1,17 @@
+[package]
+name    = "vd-cli"
+version.workspace = true
+edition.workspace = true
+
+[[bin]]
+name = "vd"
+path = "src/main.rs"
+
+[dependencies]
+vd-core.workspace  = true
+clap.workspace     = true
+rustyline.workspace = true
+colored.workspace  = true
+indicatif.workspace = true
+tokio.workspace    = true
+anyhow.workspace   = true

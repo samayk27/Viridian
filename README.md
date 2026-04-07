@@ -34,7 +34,7 @@ graph TD
     CLI["CLI / UI\n(rustyline REPL)"]
     CLI --> Harness
 
-    subgraph Harness["🏗 Harness"]
+    subgraph Harness["Harness"]
         direction TB
         Orchestrator["Orchestrator\n(turn loop)"]
         Agent["Agent\n(context builder + LLM call)"]

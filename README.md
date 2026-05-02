@@ -2,9 +2,9 @@
 
 # Viridian
 
-**A fast, local-first agentic coding assistant for the terminal — built in Rust.**
+**A fast, local-first agentic coding assistant for the terminal -- built in Go.**
 
-[![Rust](https://img.shields.io/badge/rust-1.75+-orange?logo=rust)](https://www.rust-lang.org)
+[![Go](https://img.shields.io/badge/go-1.22+-00ADD8?logo=go)](https://go.dev)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 [![Build](https://img.shields.io/badge/build-passing-brightgreen)]()
 
@@ -12,15 +12,15 @@
 
 ---
 
-Viridian (`vd`) is a CLI coding assistant that runs entirely on your machine using local LLMs via [Ollama](https://ollama.ai). It can read your codebase, apply diffs, run shell commands, and iterate — all from your terminal, with no cloud required.
+Viridian (`vd`) is a CLI coding assistant that runs entirely on your machine using local LLMs via [Ollama](https://ollama.ai). It can read your codebase, apply diffs, run shell commands, and iterate -- all from your terminal, with no cloud required.
 
 ```
 $ vd "refactor the auth module to use JWTs instead of sessions"
 
-  ● Reading src/auth/session.rs ...
-  ● Searching for session references ...
-  ● Applying patch to src/auth/mod.rs ...
-  ✔ Done — 3 files changed
+  - Reading src/auth/session.go ...
+  - Searching for session references ...
+  - Applying patch to src/auth/auth.go ...
+        - Done -- 3 files changed
 ```
 
 ---
@@ -31,18 +31,18 @@ The design follows a clean layered architecture inspired by how modern AI coding
 
 ```mermaid
 graph TD
-    CLI["CLI / UI\n(rustyline REPL)"]
+    CLI["CLI / UI\n(readline REPL)"]
     CLI --> Harness
 
     subgraph Harness["Harness"]
         direction TB
         Orchestrator["Orchestrator\n(turn loop)"]
         Agent["Agent\n(context builder + LLM call)"]
-        Memory["Memory Layer\n• Working Context\n• SQLite History\n• Project Context"]
-        Tools["Tool Registry\nread_file · list_dir · grep_search\napply_patch · bash_exec"]
+        Memory["Memory Layer\n- Working Context\n- SQLite History\n- Project Context"]
+        Tools["Tool Registry\nread_file - list_dir - grep_search\napply_patch - bash_exec"]
         Shell["Shell / Execution Layer"]
         MCP["MCP Bridge\n(stdio / SSE)"]
-        Perm["⚡ Permission Gate"]
+        Perm["Permission Gate"]
 
         Orchestrator --> Agent
         Agent --> Memory
@@ -65,62 +65,62 @@ graph TD
 
 ```
 User types a message
-        │
-        ▼
+        |
+        v
 Orchestrator adds it to Working Context
-        │
-        ▼
+        |
+        v
 Agent assembles prompt:
-  • System prompt (who Viridian is, project info)
-  • Git context (branch, recent commits)
-  • Conversation history
-  • Tool schemas (JSON)
-        │
-        ▼
+  - System prompt (who Viridian is, project info)
+  - Git context (branch, recent commits)
+  - Conversation history
+  - Tool schemas (JSON)
+        |
+        v
 OllamaProvider streams response
-        │
-   ┌────┴────────────────────┐
-   │ tool_calls?             │ plain text?
-   ▼                         ▼
+        |
+   +-------------------------+
+   | tool_calls?             | plain text?
+   v                         v
 Permission Gate          Show to user
-   │                     (done)
-   ▼
+   |                     (done)
+   v
 Tool executes
 (result added to context)
-   │
-   └──────► back to Agent (loop continues)
+   |
+   +------> back to Agent (loop continues)
 ```
 
-### Crate Layout
+### Module Layout
 
 ```
 viridian/
-├── vd-cli/      → Binary entry point. REPL, arg parsing, output rendering
-├── vd-core/     → Harness, Orchestrator, Agent, Config, Error types
-├── vd-llm/      → LlmProvider trait + OllamaProvider implementation
-├── vd-tools/    → Tool trait, Permission system, all tool implementations
-├── vd-memory/   → Working context, SQLite conversation history, project context
-└── vd-mcp/      → Model Context Protocol client (JSON-RPC over stdio/SSE)
+├── cmd/vd/        -> Binary entry point. REPL, arg parsing, output rendering
+├── internal/core/ -> Harness, Orchestrator, Agent, Config, Error types
+├── internal/llm/  -> Provider interface + Ollama implementation
+├── internal/tools/-> Tool interface, Permission system, tool implementations
+├── internal/memory/ -> Working context, SQLite history, project context
+└── internal/mcp/  -> Model Context Protocol client (JSON-RPC over stdio/SSE)
 ```
 
 ---
 
 ## Features
 
-- **Local-first** — runs entirely on your machine via Ollama, no API keys needed
-- **Streaming output** — see the LLM response token by token as it generates
-- **Agentic tool use** — reads files, searches code, applies diffs, runs shell commands
-- **Unified diff editing** — LLM outputs diffs, Viridian applies them (like Aider)
-- **Permission system** — prompts before any write or shell execution; `--auto-approve` to skip
-- **MCP support** — connect any [Model Context Protocol](https://modelcontextprotocol.io) server as a tool source
-- **Conversation history** — sessions stored in SQLite, resumable across restarts
-- **Project awareness** — git branch, recent commits, and file tree injected into every prompt
+- **Local-first** -- runs entirely on your machine via Ollama, no API keys needed
+- **Streaming output** -- see the LLM response token by token as it generates
+- **Agentic tool use** -- reads files, searches code, applies diffs, runs shell commands
+- **Unified diff editing** -- LLM outputs diffs, Viridian applies them (like Aider)
+- **Permission system** -- prompts before any write or shell execution; `--auto-approve` to skip
+- **MCP support** -- connect any [Model Context Protocol](https://modelcontextprotocol.io) server as a tool source
+- **Conversation history** -- sessions stored in SQLite, resumable across restarts
+- **Project awareness** -- git branch, recent commits, and file tree injected into every prompt
 
 ---
 
 ## Installation
 
-**Prerequisites:** [Rust](https://rustup.rs) + [Ollama](https://ollama.ai)
+**Prerequisites:** [Go](https://go.dev) 1.22+ and [Ollama](https://ollama.ai)
 
 ```bash
 # Clone the repo
@@ -131,7 +131,7 @@ cd viridian
 ollama pull qwen2.5-coder:7b
 
 # Build and install
-cargo install --path vd-cli
+go install ./cmd/vd
 ```
 
 ---
@@ -143,7 +143,7 @@ cargo install --path vd-cli
 vd
 
 # One-shot mode
-vd "explain what src/main.rs does"
+vd "explain what cmd/vd/main.go does"
 
 # Skip permission prompts (auto-approve all tool calls)
 vd --auto-approve
@@ -171,7 +171,7 @@ model    = "qwen2.5-coder:7b"
 base_url = "http://localhost:11434"
 
 [permissions]
-auto_approve_all = false          # true = same as --auto-approve
+auto_approve_all = false                 # true = same as --auto-approve
 auto_approve     = ["ReadFile", "ListDir"]  # safe reads, never prompt
 
 [shell]
@@ -201,9 +201,9 @@ enabled   = false
 | `read_file`   | Read file contents with optional line range |        No         |
 | `list_dir`    | List directory contents                     |        No         |
 | `grep_search` | ripgrep-powered code search                 |        No         |
-| `apply_patch` | Apply unified diff to a file                |      **Yes**      |
-| `write_file`  | Overwrite a file entirely                   |      **Yes**      |
-| `bash_exec`   | Run a shell command, stream output          |      **Yes**      |
+| `apply_patch` | Apply unified diff to a file                |       Yes         |
+| `write_file`  | Overwrite a file entirely                   |       Yes         |
+| `bash_exec`   | Run a shell command, stream output          |       Yes         |
 
 Plus any tools from connected MCP servers.
 
@@ -229,29 +229,29 @@ MCP tools are discovered at startup and appear to the LLM alongside native tools
 ## Development
 
 ```bash
-# Check all crates
-cargo check --workspace
+# Build
+go build ./cmd/vd
 
 # Run with logging
-RUST_LOG=debug cargo run
+VIRIDIAN_LOG=debug go run ./cmd/vd
 
 # Lint
-cargo clippy --workspace -- -D warnings
+go vet ./...
 
 # Test
-cargo test --workspace
+go test ./...
 ```
 
-### Crate responsibilities at a glance
+### Module responsibilities at a glance
 
-| Crate       | Owns                                                             |
-| ----------- | ---------------------------------------------------------------- |
-| `vd-cli`    | User interaction, REPL loop, output rendering                    |
-| `vd-core`   | Orchestrator turn loop, agent, harness (DI wiring), config       |
-| `vd-llm`    | `LlmProvider` trait, Ollama HTTP streaming, message types        |
-| `vd-tools`  | `Tool` trait, permission gate, all tool implementations          |
-| `vd-memory` | Conversation window, SQLite persistence, project context builder |
-| `vd-mcp`    | JSON-RPC client, MCP server process management, tool bridge      |
+| Module            | Owns                                                             |
+| ----------------- | ---------------------------------------------------------------- |
+| `cmd/vd`          | User interaction, REPL loop, output rendering                    |
+| `internal/core`   | Orchestrator turn loop, agent, harness, config                   |
+| `internal/llm`    | Provider interface, Ollama HTTP streaming, message types         |
+| `internal/tools`  | Tool interface, permission gate, tool implementations            |
+| `internal/memory` | Conversation window, SQLite persistence, project context builder |
+| `internal/mcp`    | JSON-RPC client, MCP server process management, tool bridge      |
 
 ---
 
